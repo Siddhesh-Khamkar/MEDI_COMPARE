@@ -1,0 +1,458 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedCompare | Dashboard</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+
+    <!-- Protect dashboard from users who are not logged in -->
+    <script>
+        if (sessionStorage.getItem("medcompareLoggedIn") !== "true") {
+            window.location.replace("index.html?login=1");
+        }
+    </script>
+</head>
+<body>
+    <header class="navbar">
+        <a class="logo" href="dashboard.html">
+            ✚ Med<span>Compare</span>
+        </a>
+        <button id="logoutBtn" class="logout-btn" type="button">Log Out</button>
+    </header>
+
+    <main class="container">
+        <section class="welcome">
+            <p class="eyebrow">YOUR PERSONAL DASHBOARD</p>
+            <h1>Welcome, <span id="userName">User</span>!</h1>
+            <p>Find medicines, compare prices and explore affordable options.</p>
+        </section>
+
+        <!-- Medicine Search -->
+<section class="dashboard-search">
+    <h2>Medicine Price Comparison</h2>
+    <p>Search medicines and compare their listed prices.</p>
+
+    <form id="medicineSearchForm" class="search-form">
+        <input
+            type="search"
+            id="medicineSearch"
+            placeholder="Search medicine name..."
+            required
+        >
+        <button type="submit">Search</button>
+    </form>
+</section>
+
+<!-- Price Overview -->
+<section class="comparison-panel">
+
+    <div class="comparison-toolbar">
+        <div>
+            <h3>Medicine price overview</h3>
+            <p id="comparisonStatus">Search for a medicine to begin.</p>
+        </div>
+
+        <label>
+            Chart view
+            <select id="chartType">
+                <option value="bar">Bar chart</option>
+                <option value="doughnut">Doughnut chart</option>
+            </select>
+        </label>
+    </div>
+
+    <div id="medicineResults"></div>
+
+    <div class="comparison-summary">
+        <div class="summary-card">
+            <span>Lowest sample price</span>
+            <strong id="lowestPrice">₹0.00</strong>
+            <small id="lowestMedicine">—</small>
+        </div>
+
+        <div class="summary-card">
+            <span>Highest sample price</span>
+            <strong id="highestPrice">₹0.00</strong>
+            <small id="highestMedicine">—</small>
+        </div>
+
+        <div class="summary-card">
+            <span>Price difference</span>
+            <strong id="priceDifference">₹0.00</strong>
+            <small>Between highest and lowest</small>
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="priceChart"></canvas>
+        <p id="chartFallback" class="chart-fallback">
+            Search for a medicine to display the price chart.
+        </p>
+    </div>
+
+    <p id="priceInsight" class="price-insight">
+        Your price comparison will appear here.
+    </p>
+
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="js/script.js"></script>
+
+        <!-- Dashboard Feature Cards -->
+        <section class="feature-grid">
+            <a class="feature-card" href="#medicine-search">
+                <div class="feature-icon">⌕</div>
+                <h2>Search Medicines</h2>
+                <p>Search medicines from our database.</p>
+                <span>Search now →</span>
+            </a>
+
+            <a class="feature-card" href="#price-comparison">
+                <div class="feature-icon">₹</div>
+                <h2>Explore Prices</h2>
+                <p>View available medicine prices and compare them.</p>
+                <span>Explore now →</span>
+            </a>
+
+            <a class="feature-card" href="index.html#about">
+                <div class="feature-icon">✚</div>
+                <h2>About MedCompare</h2>
+                <p>Learn about the project and its features.</p>
+                <span>Learn more →</span>
+            </a>
+        </section>
+
+        <p class="notice">
+            Note: Prices come from the available dataset and may not reflect
+            current pharmacy prices. This information is not medical advice.
+            Confirm medicine details with a qualified pharmacist or doctor.
+        </p>
+    </main>
+
+    <script>
+        // User session
+        const userName = sessionStorage.getItem("medcompareUserName");
+
+        if (sessionStorage.getItem("medcompareLoggedIn") !== "true" || !userName) {
+            window.location.replace("index.html?login=1");
+        } else {
+            document.getElementById("userName").textContent = userName;
+        }
+
+        // Logout
+        document.getElementById("logoutBtn").addEventListener("click", () => {
+            sessionStorage.removeItem("medcompareLoggedIn");
+            sessionStorage.removeItem("medcompareUserName");
+            window.location.replace("index.html?login=1");
+        });
+
+        // Search elements
+const searchForm = document.getElementById("medicineSearchForm");
+const queryInput = document.getElementById("medicineSearch");
+const searchBtn = searchForm.querySelector('button[type="submit"]');
+const searchStatus = document.getElementById("comparisonStatus");
+const searchResults = document.getElementById("medicineResults");
+
+        // Price overview elements
+        const comparisonStatus = document.getElementById("comparisonStatus");
+        const lowestPrice = document.getElementById("lowestPrice");
+        const highestPrice = document.getElementById("highestPrice");
+        const lowestMedicine = document.getElementById("lowestMedicine");
+        const highestMedicine = document.getElementById("highestMedicine");
+        const priceDifference = document.getElementById("priceDifference");
+        const priceInsight = document.getElementById("priceInsight");
+        const chartType = document.getElementById("chartType");
+        const canvas = document.getElementById("priceChart");
+        const chartFallback = document.getElementById("chartFallback");
+        const ctx = canvas.getContext("2d");
+
+        let currentMedicines = [];
+
+        function getMedicinePrice(medicine) {
+            const rawPrice = medicine.product_price ?? medicine.price;
+
+            if (rawPrice === null || rawPrice === undefined || rawPrice === "") {
+                return null;
+            }
+
+            const price = Number(String(rawPrice).replace(/[₹,\s]/g, ""));
+            return Number.isFinite(price) && price > 0 ? price : null;
+        }
+
+        function formatPrice(price) {
+            return price.toLocaleString("en-IN", {
+                style: "currency",
+                currency: "INR"
+            });
+        }
+
+        function clearChart() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function drawChart(medicines) {
+    if (window.dashboardChart) {
+        window.dashboardChart.destroy();
+        window.dashboardChart = null;
+    }
+
+    const pricedMedicines = medicines
+        .map(medicine => ({
+            ...medicine,
+            displayPrice: getMedicinePrice(medicine)
+        }))
+        .filter(medicine => medicine.displayPrice !== null)
+        .sort((a, b) => a.displayPrice - b.displayPrice)
+        .slice(0, 20);
+
+    if (!pricedMedicines.length) {
+        chartFallback.hidden = false;
+        chartFallback.textContent =
+            "Search for a medicine to display the price chart.";
+        return;
+    }
+
+    if (!window.Chart) {
+        chartFallback.hidden = false;
+        chartFallback.textContent =
+            "Chart.js library could not load. Check your internet connection.";
+        return;
+    }
+
+    chartFallback.hidden = true;
+
+    const ctx = canvas.getContext("2d");
+
+    canvas.style.height = "360px";
+    canvas.parentElement.style.height = "400px";
+
+    const colors = [
+        "#087f6a", "#8b78d6", "#e8a363", "#4d9bc2",
+        "#d87587", "#8cae75", "#087f6a", "#8b78d6",
+        "#e8a363", "#4d9bc2", "#d87587", "#8cae75",
+        "#087f6a", "#8b78d6", "#e8a363", "#4d9bc2",
+        "#d87587", "#8cae75", "#087f6a", "#8b78d6"
+    ];
+
+    const isDoughnut = chartType.value === "doughnut";
+
+    window.dashboardChart = new Chart(ctx, {
+        type: isDoughnut ? "doughnut" : "bar",
+
+        data: {
+            labels: pricedMedicines.map(
+                medicine => medicine.product_name || "Medicine"
+            ),
+
+            datasets: [{
+                label: "Medicine price (₹)",
+
+                data: pricedMedicines.map(
+                    medicine => medicine.displayPrice
+                ),
+
+                backgroundColor: pricedMedicines.map(
+                    (_, index) => colors[index % colors.length]
+                ),
+
+                borderRadius: isDoughnut ? 0 : 7,
+                borderWidth: 0
+            }]
+        },
+
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+
+            indexAxis: "x",
+
+            plugins: {
+                legend: {
+                    display: isDoughnut,
+                    position: "bottom"
+                },
+
+                tooltip: {
+                    callbacks: {
+                        label: context =>
+                            "Price: " + formatPrice(context.parsed.y ?? context.parsed)
+                    }
+                }
+            },
+
+            scales: isDoughnut ? {} : {
+                x: {
+                    ticks: {
+                        maxRotation: 55,
+                        minRotation: 35,
+                        autoSkip: false,
+                        font: {
+                            size: 11
+                        }
+                    },
+
+                    grid: {
+                        display: false
+                    }
+                },
+
+                y: {
+                    beginAtZero: true,
+
+                    ticks: {
+                        callback: value => "₹" + value
+                    }
+                }
+            }
+        }
+    });
+}
+
+        function updatePriceOverview(medicines, query) {
+            const pricedMedicines = medicines
+                .map(medicine => ({
+                    medicine,
+                    price: getMedicinePrice(medicine)
+                }))
+                .filter(item => item.price !== null);
+
+            currentMedicines = medicines;
+
+            comparisonStatus.textContent =
+                `${medicines.length} result(s) for "${query}", sorted by listed price.`;
+
+            if (pricedMedicines.length === 0) {
+                lowestPrice.textContent = "—";
+                highestPrice.textContent = "—";
+                priceDifference.textContent = "—";
+                lowestMedicine.textContent = "Price unavailable";
+                highestMedicine.textContent = "Price unavailable";
+                priceInsight.textContent = "No valid price data was returned for this search.";
+                drawChart([]);
+                return;
+            }
+
+            pricedMedicines.sort((a, b) => a.price - b.price);
+
+            const lowest = pricedMedicines[0];
+            const highest = pricedMedicines[pricedMedicines.length - 1];
+            const difference = highest.price - lowest.price;
+
+            lowestPrice.textContent = formatPrice(lowest.price);
+            highestPrice.textContent = formatPrice(highest.price);
+            priceDifference.textContent = formatPrice(difference);
+
+            lowestMedicine.textContent =
+                lowest.medicine.product_name || "Unknown medicine";
+            highestMedicine.textContent =
+                highest.medicine.product_name || "Unknown medicine";
+
+            priceInsight.textContent =
+                `${lowest.medicine.product_name || "The lowest-priced listing"} has the lowest listed price in these results. Compare equivalent strengths and pack sizes before drawing conclusions.`;
+
+            drawChart(medicines);
+        }
+
+        // Medicine search — existing API retained
+        searchForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            if (sessionStorage.getItem("medcompareLoggedIn") !== "true") {
+                window.location.replace("index.html?login=1");
+                return;
+            }
+
+            const query = queryInput.value.trim();
+
+            if (!query) {
+                searchStatus.textContent = "Please enter a medicine name.";
+                return;
+            }
+
+            searchBtn.disabled = true;
+            searchBtn.textContent = "Searching...";
+            searchStatus.textContent = "Searching the medicine database...";
+            searchResults.replaceChildren();
+
+            try {
+                const url = new URL("http://127.0.0.1:8000/medicines/compare");
+url.searchParams.set("q", query);
+url.searchParams.set("limit", "20");
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.detail || "Unable to search medicines.");
+                }
+
+                if (!data.results || data.results.length === 0) {
+                    searchStatus.textContent =
+                        "No medicines found. Try another name or salt composition.";
+
+                    updatePriceOverview([], query);
+                    return;
+                }
+
+                searchStatus.textContent =
+                    `Found ${data.count ?? data.results.length} matching medicine(s).`;
+
+                // Update overview and chart using returned search results
+                updatePriceOverview(data.results, query);
+
+                data.results.forEach((medicine) => {
+                    const card = document.createElement("article");
+                    card.className = "medicine-card";
+
+                    const name = document.createElement("h3");
+                    name.textContent = medicine.product_name || "Unknown medicine";
+                    card.appendChild(name);
+
+                    const price = document.createElement("p");
+                    price.className = "medicine-price";
+                    const value = getMedicinePrice(medicine);
+
+                    price.textContent = value === null
+                        ? "Price unavailable"
+                        : `Dataset price: ${formatPrice(value)}`;
+                    card.appendChild(price);
+
+                    const salt = document.createElement("p");
+                    salt.textContent =
+                        `Salt composition: ${medicine.salt_composition || "Not available"}`;
+                    card.appendChild(salt);
+
+                    const manufacturer = document.createElement("p");
+                    manufacturer.textContent =
+                        `Manufacturer: ${medicine.product_manufactured || medicine.manufacturer || "Not available"}`;
+                    card.appendChild(manufacturer);
+
+                    searchResults.appendChild(card);
+                });
+            } catch (error) {
+                searchStatus.textContent =
+                    "Could not connect to the medicine database. Make sure the backend is running.";
+                console.error("Medicine search error:", error);
+            } finally {
+                searchBtn.disabled = false;
+                searchBtn.textContent = "Search";
+            }
+        });
+
+        chartType.addEventListener("change", () => {
+            drawChart(currentMedicines);
+        });
+
+        window.addEventListener("resize", () => {
+            if (currentMedicines.length > 0) {
+                drawChart(currentMedicines);
+            }
+        });
+    </script>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

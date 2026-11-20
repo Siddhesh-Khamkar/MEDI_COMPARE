@@ -1,0 +1,342 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f4faf7">
+    <title>MedCompare | Smart Medicine Comparison</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Navigation -->
+    <header class="navbar">
+        <a href="#home" class="logo">
+            <span class="logo-icon">✚</span>
+            Med<span class="logo-highlight">Compare</span>
+        </a>
+
+        <nav class="nav-links" id="navLinks">
+            <a href="#home" class="nav-link active">Home</a>
+            <a href="#price-comparison" class="nav-link">AI Price Compare</a>
+            <a href="#about" class="nav-link">About</a>
+        </nav>
+
+        <div class="nav-actions">
+            <button class="btn btn-outline" id="loginBtn">Log In</button>
+            <button class="btn btn-primary" id="signupBtn">Sign Up</button>
+        </div>
+
+        <button class="menu-toggle" id="menuToggle"
+                aria-label="Toggle navigation" aria-expanded="false">
+            ☰
+        </button>
+    </header>
+
+    <main>
+        <!-- Main Dashboard / Hero -->
+        <section class="hero section" id="home">
+            <div class="hero-content">
+                <div class="status-pill">
+                    <span class="status-dot"></span>
+                    Smarter healthcare shopping
+                </div>
+
+                <h1>
+                    Compare medicines.<br>
+                    <span>Choose with confidence.</span>
+                </h1>
+
+                <p class="hero-description">
+                    Explore medicine information, compare listed prices,
+                    and understand your options with AI-assisted insights.
+                </p>
+
+                <form class="search-form" id="medicineSearchForm">
+                    <span class="search-icon" aria-hidden="true">⌕</span>
+                    <input
+                        type="search"
+                        id="medicineSearch"
+                        placeholder="Search medicine name..."
+                        aria-label="Search medicine"
+                        required
+                    >
+                    <button type="submit" class="btn btn-primary">
+                        Search
+                    </button>
+                </form>
+
+                <p class="demo-label">
+                    <span>ⓘ</span>
+                    Student project · Demonstration data
+                </p>
+
+                <div class="hero-stats">
+                    <div class="stat">
+                        <strong>Easy</strong>
+                        <span>Medicine search</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat">
+                        <strong>Clear</strong>
+                        <span>Price comparisons</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat">
+                        <strong>AI</strong>
+                        <span>Helpful explanations</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-visual" aria-label="Medicine comparison illustration">
+                <div class="decor decor-one"></div>
+                <div class="decor decor-two"></div>
+
+                <div class="floating-card floating-card-top">
+                    <span class="floating-icon">✦</span>
+                    <div>
+                        <strong>AI-assisted insights</strong>
+                        <small>Understand your results</small>
+                    </div>
+                </div>
+
+                <div class="medicine-illustration">
+                    <div class="medical-cross">✚</div>
+                    <div class="capsule capsule-one"></div>
+                    <div class="capsule capsule-two"></div>
+                    <div class="medicine-bottle">
+                        <div class="bottle-cap"></div>
+                        <div class="bottle-neck"></div>
+                        <div class="bottle-body">
+                            <span class="bottle-mark">M+</span>
+                            <span class="bottle-line"></span>
+                            <span class="bottle-line short"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="floating-card floating-card-bottom">
+                    <span class="check-icon">✓</span>
+                    <div>
+                        <strong>Compare clearly</strong>
+                        <small>Prices and product details</small>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Feature Cards -->
+        <section class="features section" aria-labelledby="featuresTitle">
+            <div class="section-heading">
+                <span class="eyebrow">WHAT YOU CAN DO</span>
+                <h2 id="featuresTitle">Healthcare information, made simpler</h2>
+                <p>Useful tools to explore medicine listings and understand price differences.</p>
+            </div>
+
+            <div class="feature-grid">
+                <article class="feature-card">
+                    <div class="feature-icon green-icon">⌕</div>
+                    <h3>Medicine Search</h3>
+                    <p>Find medicine records by name and review their available details.</p>
+                    <a href="#price-comparison">Explore search <span>→</span></a>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-icon purple-icon">▥</div>
+                    <h3>AI Price Insights</h3>
+                    <p>Review price differences and get a simple explanation of the results.</p>
+                    <a href="#price-comparison">Compare prices <span>→</span></a>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-icon orange-icon">✧</div>
+                    <h3>AI Chat Assistant</h3>
+                    <p>Ask general questions about medicine information and price comparisons.</p>
+                    <a href="#ai-assistant">Meet the assistant <span>→</span></a>
+                </article>
+            </div>
+        </section>
+
+        <!-- Price Comparison -->
+        <section class="comparison-section section" id="price-comparison">
+            <div class="section-heading">
+                <span class="eyebrow">SMART PRICE ANALYSIS</span>
+                <h2>AI-powered price comparison</h2>
+                <p>Compare the sample prices below. These values are fictional and are not current market prices.</p>
+            </div>
+
+            <div class="comparison-panel">
+                <div class="comparison-toolbar">
+                    <div>
+                        <h3>Medicine price overview</h3>
+                        <p id="comparisonStatus">Sample comparison · Demo data</p>
+                    </div>
+
+                    <label class="select-label" for="chartType">
+                        Chart view
+                        <select id="chartType">
+                            <option value="bar">Bar chart</option>
+                            <option value="doughnut">Doughnut chart</option>
+                        </select>
+                    </label>
+                </div>
+
+                <div class="comparison-summary">
+                    <div class="summary-card">
+                        <span>Lowest sample price</span>
+                        <strong id="lowestPrice">₹60.00</strong>
+                        <small id="lowestMedicine">Demo Medicine C</small>
+                    </div>
+
+                    <div class="summary-card">
+                        <span>Highest sample price</span>
+                        <strong id="highestPrice">₹100.00</strong>
+                        <small id="highestMedicine">Demo Medicine A</small>
+                    </div>
+
+                    <div class="summary-card">
+                        <span>Price difference</span>
+                        <strong id="priceDifference">₹40.00</strong>
+                        <small>Between highest and lowest</small>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="priceChart" aria-label="Medicine price comparison chart"></canvas>
+                    <p id="chartFallback" class="chart-fallback">
+                        The interactive chart will appear when JavaScript is connected.
+                    </p>
+                </div>
+
+                <p id="priceInsight" class="price-insight">
+                    Example insight: Demo Medicine C has the lowest sample price in this dataset.
+                    The comparison is illustrative only.
+                </p>
+            </div>
+        </section>
+
+        <!-- AI Chatbot -->
+        <section class="assistant-section section" id="ai-assistant">
+            <div class="assistant-copy">
+                <span class="eyebrow">YOUR INFORMATION ASSISTANT</span>
+                <h2>Questions? Let's make things clearer.</h2>
+                <p>
+                    The planned MedCompare assistant will help explain medicine
+                    listing details and price comparisons using available project data.
+                </p>
+                <button class="btn btn-primary" id="openChatBtn">
+                    Open AI Assistant <span>→</span>
+                </button>
+                <p class="demo-label">The AI service will be connected in a later step.</p>
+            </div>
+
+            <div class="chat-preview">
+                <div class="chat-preview-header">
+                    <div class="chat-avatar">✦</div>
+                    <div>
+                        <strong>MedCompare Assistant</strong>
+                        <small><span class="status-dot"></span> Preview</small>
+                    </div>
+                </div>
+
+                <div class="chat-message bot-message">
+                    Hello! I’ll help explain medicine information and price comparisons.
+                </div>
+
+                <div class="chat-message user-message">
+                    Why do medicine prices differ?
+                </div>
+
+                <div class="chat-message bot-message">
+                    Prices may vary by manufacturer, pack size, seller, and price date.
+                    Always compare equivalent listings.
+                </div>
+
+                <p class="chat-demo-note">Illustrative conversation, not a live AI response.</p>
+            </div>
+        </section>
+
+        <!-- About -->
+        <section class="about-section section" id="about">
+            <div class="about-content">
+                <span class="eyebrow">ABOUT MEDCOMPARE</span>
+                <h2>Better access to organized medicine information.</h2>
+                <p>
+                    MedCompare is a college project designed to organize medicine
+                    information and compare available price records in one place.
+                    It uses medicine attributes and transparent price calculations
+                    to help users understand their options.
+                </p>
+            </div>
+
+            <div class="about-points">
+                <div><span>✓</span> Structured medicine information</div>
+                <div><span>✓</span> Transparent price calculations</div>
+                <div><span>✓</span> AI-assisted explanations</div>
+                <div><span>✓</span> Clear source and date information as data becomes available</div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <a href="#home" class="logo">
+                <span class="logo-icon">✚</span>
+                Med<span class="logo-highlight">Compare</span>
+            </a>
+            <p>College project · Medicine information and price comparison</p>
+            <a href="#about">About the project</a>
+        </footer>
+    </main>
+
+    <!-- Login / Sign-up Modal -->
+    <div class="modal-overlay" id="authModal" hidden>
+        <section class="auth-modal" role="dialog" aria-modal="true"
+                 aria-labelledby="authTitle">
+            <button type="button" class="modal-close" id="closeAuthBtn"
+                    aria-label="Close login window">×</button>
+
+            <div class="auth-brand">
+                <span class="logo-icon">✚</span>
+                <span class="logo">Med<span class="logo-highlight">Compare</span></span>
+            </div>
+
+            <h2 id="authTitle">Welcome back</h2>
+            <p id="authSubtitle">Log in to your MedCompare account.</p>
+
+            <div class="auth-tabs">
+                <button type="button" class="auth-tab active" id="loginTab">Log In</button>
+                <button type="button" class="auth-tab" id="signupTab">Sign Up</button>
+            </div>
+
+            <form id="authForm">
+                <label for="authName" id="nameLabel" hidden>Full name</label>
+                <input type="text" id="authName" placeholder="Full name"
+                       autocomplete="name" hidden>
+
+                <label for="authEmail">Email address</label>
+                <input type="email" id="authEmail" placeholder="you@example.com"
+                       autocomplete="email" required>
+
+                <label for="authPassword">Password</label>
+                <input type="password" id="authPassword" placeholder="Enter password"
+                       autocomplete="current-password" minlength="8" required>
+
+                <button type="submit" class="btn btn-primary auth-submit" id="authSubmit">
+                    Log In
+                </button>
+                <p id="authMessage" class="auth-message" role="status"></p>
+            </form>
+
+            <p class="auth-note">
+    Keep your login credentials secure. Medicine prices are for comparison
+    and should be verified with a pharmacist.
+</p>
+        </section>
+    </div>
+
+   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+# Python virtual environment
+.venv/
+venv/
+
+# Environment variables and secrets
+.env
+.env.*
+
+# Python cache
+__pycache__/
+*.pyc
+
+# IDE files
+.vscode/
+
+data/medicine_data_project.csv
